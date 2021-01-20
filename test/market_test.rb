@@ -3,6 +3,7 @@ require './lib/vendor'
 require './lib/market'
 require "pry"
 require 'minitest/autorun'
+require "mocha/minitest"
 
 class MarketTest < Minitest::Test
 	def setup
@@ -32,8 +33,11 @@ class MarketTest < Minitest::Test
 	end
 
 	def test_it_has_things
+		@market.stubs(:date).returns("24/02/2020")
+
 		assert_equal "South Pearl Street Farmers Market", @market.name
 		assert_equal [], @market.vendors
+		assert_equal "24/02/2020",  @market.date
 	end
 
 	def test_it_can_add_vendors
@@ -114,5 +118,31 @@ class MarketTest < Minitest::Test
 		@vendor3.stock(@item3, 10)
 
 		assert_equal [@item1], @market.overstocked_items
+	end
+
+	def test_it_can_get_stock_of_item
+		@market.add_vendor(@vendor1)
+		@market.add_vendor(@vendor2)
+		@market.add_vendor(@vendor3)
+
+		@vendor3.stock(@item3, 10)
+
+		assert_equal false, @market.is_enough(@item1,200)
+	end
+
+	def test_it_can_sell_items
+		@market.add_vendor(@vendor1)
+		@market.add_vendor(@vendor2)
+		@market.add_vendor(@vendor3)
+
+		assert_equal false, @market.sell(@item1, 200)
+		assert_equal false, @market.sell(@item5, 1)
+		assert_equal true, @market.sell(@item4, 5)
+
+		assert_equal 45, @vendor2.check_stock(@item4)
+
+		assert_equal true, @market.sell(@item1, 40)
+		assert_equal 0, @vendor1.check_stock(@item1)
+		assert_equal 60, @vendor3.check_stock(@item1)
 	end
 end
