@@ -10,4 +10,8 @@ class ItemTest < Minitest::Test
 		assert_instance_of Item, @item1
 	end
 
+	def test_it_has_things
+		assert_equal "Peach", @item1.name
+		assert_equal 0.75, @item1.price
+	end
 end
